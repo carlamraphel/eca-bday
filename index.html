@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy 25th Birthday 🎂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #fdf6ec;
+      --blush: #f2b8c6;
+      --rose: #d4607a;
+      --deep-rose: #8b2a42;
+      --gold: #c9973a;
+      --light-gold: #f0d5a0;
+      --text-dark: #2e1a1a;
+      --text-mid: #5c3a3a;
+      --white: #fff9f5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ── PETAL CANVAS ── */
+    #petal-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+
+    /* ══════════════════════════════
+       INTRO SECTION
+    ══════════════════════════════ */
+    #intro {
+      background: linear-gradient(160deg, #fff0f4 0%, #fdf6ec 60%, #ffecd8 100%);
+      text-align: center;
+    }
+
+    .intro-ornament {
+      font-size: 2rem;
+      color: var(--rose);
+      letter-spacing: 12px;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.3s;
+    }
+
+    .intro-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(3rem, 10vw, 7rem);
+      color: var(--deep-rose);
+      line-height: 1;
+      margin: 16px 0;
+      opacity: 0;
+      animation: fadeUp 1.2s ease forwards 0.6s;
+    }
+
+    .intro-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      color: var(--text-mid);
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.9s;
+    }
+
+    .intro-divider {
+      width: 180px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--rose), transparent);
+      margin: 0 auto 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.1s;
+    }
+
+    .intro-message {
+      max-width: 580px;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      line-height: 2;
+      color: var(--text-mid);
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.3s;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--rose);
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 2s, bounce 2s ease-in-out infinite 3s;
+    }
+
+    /* ══════════════════════════════
+       SLIDESHOW SECTION
+    ══════════════════════════════ */
+    #slideshow {
+      background: var(--text-dark);
+      padding: 80px 24px;
+    }
+
+    .section-label {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      color: var(--light-gold);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      text-align: center;
+      font-size: 0.85rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.7;
+      margin-bottom: 48px;
+    }
+
+    .slideshow-frame {
+      position: relative;
+      width: min(600px, 100%);
+      aspect-ratio: 4/3;
+      border: 1px solid rgba(201,151,58,0.3);
+      box-shadow: 0 0 80px rgba(212,96,122,0.2);
+      overflow: hidden;
+      background: #1a0e0e;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .slide.active { opacity: 1; }
+
+    /* Placeholder photo boxes – replace <img> tags with actual photos */
+    .slide-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slide-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #2e1a1a, #4a2030);
+    }
+
+    .slide-placeholder-icon { font-size: 3rem; opacity: 0.4; }
+    .slide-placeholder-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 2px;
+    }
+
+    .slide-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 24px;
+      background: linear-gradient(to top, rgba(30,10,10,0.85), transparent);
+      font-style: italic;
+      color: var(--light-gold);
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+
+    .slide-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 28px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid rgba(201,151,58,0.4);
+      color: var(--light-gold);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(201,151,58,0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .dot.active {
+      background: var(--gold);
+      transform: scale(1.4);
+    }
+
+    /* ══════════════════════════════
+       LETTER SECTION
+    ══════════════════════════════ */
+    #letter {
+      background: linear-gradient(170deg, #fff8f0 0%, #fdf0f4 100%);
+      padding: 100px 24px;
+    }
+
+    .letter-wrapper {
+      max-width: 700px;
+      width: 100%;
+      background: var(--white);
+      border: 1px solid rgba(212,96,122,0.15);
+      box-shadow:
+        0 4px 6px rgba(0,0,0,0.04),
+        0 20px 60px rgba(212,96,122,0.08),
+        inset 0 0 0 8px rgba(240,213,160,0.1);
+      padding: 64px 56px;
+      position: relative;
+    }
+
+    .letter-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 12px; left: 12px; right: 12px; bottom: 12px;
+      border: 1px solid rgba(201,151,58,0.12);
+      pointer-events: none;
+    }
+
+    .letter-stamp {
+      position: absolute;
+      top: 32px; right: 48px;
+      width: 56px; height: 70px;
+      border: 1px solid var(--blush);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--rose);
+      opacity: 0.5;
+    }
+
+    .letter-date {
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 32px;
+      opacity: 0.8;
+    }
+
+    .letter-salutation {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: var(--deep-rose);
+      margin-bottom: 28px;
+    }
+
+    .letter-body {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      line-height: 2.1;
+      color: var(--text-mid);
+      font-style: italic;
+      white-space: pre-wrap;
+    }
+
+    /* Editable letter body */
+    .letter-body[contenteditable="true"] {
+      outline: none;
+      border-bottom: 1px dashed rgba(212,96,122,0.3);
+      min-height: 200px;
+      cursor: text;
+    }
+
+    .letter-body[contenteditable="true"]:focus {
+      border-bottom-color: var(--rose);
+    }
+
+    .letter-closing {
+      margin-top: 40px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: var(--deep-rose);
+    }
+
+    .letter-sig {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.4rem;
+      color: var(--rose);
+      margin-top: 8px;
+    }
+
+    .letter-edit-hint {
+      margin-top: 16px;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rose);
+      opacity: 0.5;
+      text-align: right;
+    }
+
+    /* ══════════════════════════════
+       CAKE SECTION
+    ══════════════════════════════ */
+    #cake-section {
+      background: linear-gradient(160deg, #1a0a10 0%, #2e1020 50%, #1a0a10 100%);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cake-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: var(--light-gold);
+      margin-bottom: 8px;
+    }
+
+    .cake-subtitle {
+      font-style: italic;
+      color: var(--blush);
+      opacity: 0.7;
+      margin-bottom: 48px;
+      font-size: 1rem;
+      letter-spacing: 2px;
+    }
+
+    /* SVG Cake */
+    #cake-svg-wrap {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #cake-svg-wrap:hover { transform: scale(1.02); }
+
+    #cake-svg {
+      width: min(400px, 85vw);
+      filter: drop-shadow(0 20px 60px rgba(212,96,122,0.3));
+    }
+
+    /* Candle flames */
+    .flame {
+      transform-origin: center bottom;
+      animation: flicker 0.4s ease-in-out infinite alternate;
+    }
+    .flame:nth-child(2) { animation-delay: 0.1s; }
+    .flame:nth-child(3) { animation-delay: 0.25s; }
+    .flame:nth-child(4) { animation-delay: 0.07s; }
+    .flame:nth-child(5) { animation-delay: 0.18s; }
+
+    .blow-hint {
+      margin-top: 28px;
+      font-style: italic;
+      color: var(--blush);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    #blow-btn {
+      margin-top: 24px;
+      background: transparent;
+      border: 1px solid var(--rose);
+      color: var(--blush);
+      padding: 14px 40px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      text-transform: uppercase;
+    }
+
+    #blow-btn:hover {
+      background: var(--rose);
+      color: white;
+      box-shadow: 0 0 30px rgba(212,96,122,0.5);
+    }
+
+    /* Blown-out state */
+    .blown .flame { display: none; }
+
+    #fireworks-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    #final-message {
+      display: none;
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      color: var(--light-gold);
+      text-align: center;
+      margin-top: 32px;
+      animation: fadeUp 1.5s ease forwards;
+    }
+
+    /* ══════════════════════════════
+       KEYFRAMES
+    ══════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes flicker {
+      from { transform: scaleX(1) scaleY(1) rotate(-2deg); opacity: 1; }
+      to   { transform: scaleX(0.88) scaleY(1.08) rotate(2deg); opacity: 0.9; }
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 0.6; }
+      50%      { opacity: 1; }
+    }
+
+    @keyframes smoke {
+      0%   { opacity: 0.6; transform: translateY(0) scaleX(1); }
+      100% { opacity: 0;   transform: translateY(-40px) scaleX(2); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .letter-wrapper { padding: 40px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating petals -->
+<canvas id="petal-canvas"></canvas>
+
+<!-- ══ INTRO ══ -->
+<section id="intro">
+  <div class="intro-ornament">✦ ✦ ✦</div>
+  <h1 class="intro-title">Happy 25th</h1>
+  <p class="intro-subtitle">A quarter century of you</p>
+  <div class="intro-divider"></div>
+  <p class="intro-message">
+    Twenty-five years of laughter, of grace, of everything that makes you
+    — <em>you</em>. Tonight we celebrate the most beautiful chapter yet.
+    Scroll down and let the story unfold.
+  </p>
+  <div class="scroll-hint">↓ scroll ↓</div>
+</section>
+
+<!-- ══ SLIDESHOW ══ -->
+<section id="slideshow">
+  <h2 class="section-label">Our Moments</h2>
+  <p class="section-sub">a few of my favourites</p>
+
+  <div class="slideshow-frame">
+    <!-- SLIDE 1 — Replace .slide-placeholder with <img class="slide-photo" src="photo1.jpg" alt="..."> -->
+    <div class="slide active">
+      <div class="slide-placeholder">
+        <div class="slide-placeholder-icon">📷</div>
+        <div class="slide-placeholder-text">Your photo here</div>
+      </div>
+      <div class="slide-caption">Caption for photo 1 — edit me!</div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide">
+      <div class="slide-placeholder">
+        <div class="slide-placeholder-icon">📷</div>
+        <div class="slide-placeholder-text">Your photo here</div>
+      </div>
+      <div class="slide-caption">Caption for photo 2 — edit me!</div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="slide">
+      <div class="slide-placeholder">
+        <div class="slide-placeholder-icon">📷</div>
+        <div class="slide-placeholder-text">Your photo here</div>
+      </div>
+      <div class="slide-caption">Caption for photo 3 — edit me!</div>
+    </div>
+
+    <!-- SLIDE 4 -->
+    <div class="slide">
+      <div class="slide-placeholder">
+        <div class="slide-placeholder-icon">📷</div>
+        <div class="slide-placeholder-text">Your photo here</div>
+      </div>
+      <div class="slide-caption">Caption for photo 4 — edit me!</div>
+    </div>
+
+    <!-- SLIDE 5 -->
+    <div class="slide">
+      <div class="slide-placeholder">
+        <div class="slide-placeholder-icon">📷</div>
+        <div class="slide-placeholder-text">Your photo here</div>
+      </div>
+      <div class="slide-caption">Caption for photo 5 — edit me!</div>
+    </div>
+  </div>
+
+  <div class="slide-nav">
+    <button class="nav-btn" id="prev-btn">&#8592;</button>
+    <div class="slide-dots" id="dots"></div>
+    <button class="nav-btn" id="next-btn">&#8594;</button>
+  </div>
+</section>
+
+<!-- ══ LETTER ══ -->
+<section id="letter">
+  <h2 class="section-label" style="color:var(--deep-rose);">A Letter for You</h2>
+  <p class="section-sub" style="color:var(--rose);">from my heart to yours</p>
+
+  <div class="letter-wrapper">
+    <div class="letter-stamp">💌</div>
+    <div class="letter-date" id="letter-date"></div>
+    <div class="letter-salutation">My dearest love,</div>
+
+    <div class="letter-body" contenteditable="true" id="letter-body">
+Write your message here. Click to start typing...
+
+Tell her everything — the little things you notice, the moments that made you fall harder, the reasons you're so glad she exists. This is your space, write as much as your heart holds.
+
+Every sentence is a gift.
+    </div>
+
+    <div class="letter-closing">With all my love,</div>
+    <div class="letter-sig" id="letter-sig">— Your Name 💕</div>
+    <div class="letter-edit-hint">✏ click anywhere to edit</div>
+  </div>
+</section>
+
+<!-- ══ CAKE ══ -->
+<section id="cake-section">
+  <canvas id="fireworks-canvas"></canvas>
+
+  <h2 class="cake-title">Make a Wish</h2>
+  <p class="cake-subtitle">blow out the candles, my love</p>
+
+  <div id="cake-svg-wrap">
+    <svg id="cake-svg" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- Plate -->
+      <ellipse cx="200" cy="330" rx="170" ry="18" fill="#3d1a1a" opacity="0.4"/>
+
+      <!-- Bottom tier -->
+      <ellipse cx="200" cy="285" rx="130" ry="18" fill="#c9607a"/>
+      <rect x="70" y="210" width="260" height="75" rx="8" fill="#d4607a"/>
+      <ellipse cx="200" cy="210" rx="130" ry="18" fill="#e8809a"/>
+      <!-- Frosting drips bottom -->
+      <path d="M90,210 Q100,228 110,210 Q120,228 130,210 Q140,228 150,210 Q160,228 170,210 Q180,228 190,210 Q200,228 210,210 Q220,228 230,210 Q240,228 250,210 Q260,228 270,210 Q280,228 290,210 Q300,228 310,210" fill="none" stroke="#fdf0f4" stroke-width="8" stroke-linecap="round"/>
+      <!-- Decorations bottom tier -->
+      <circle cx="130" cy="248" r="5" fill="#f0d5a0" opacity="0.8"/>
+      <circle cx="160" cy="255" r="4" fill="#f2b8c6" opacity="0.9"/>
+      <circle cx="200" cy="250" r="6" fill="#f0d5a0" opacity="0.8"/>
+      <circle cx="240" cy="255" r="4" fill="#f2b8c6" opacity="0.9"/>
+      <circle cx="270" cy="248" r="5" fill="#f0d5a0" opacity="0.8"/>
+
+      <!-- Middle tier -->
+      <ellipse cx="200" cy="208" rx="100" ry="14" fill="#b8506a"/>
+      <rect x="100" y="148" width="200" height="62" rx="8" fill="#c96080"/>
+      <ellipse cx="200" cy="148" rx="100" ry="14" fill="#e070a0"/>
+      <!-- Frosting drips middle -->
+      <path d="M115,148 Q125,163 135,148 Q145,163 155,148 Q165,163 175,148 Q185,163 195,148 Q205,163 215,148 Q225,163 235,148 Q245,163 255,148 Q265,163 275,148 Q285,163 290,148" fill="none" stroke="#fdf0f4" stroke-width="7" stroke-linecap="round"/>
+      <!-- Hearts middle tier -->
+      <text x="175" y="182" font-size="18" fill="#f0d5a0" opacity="0.7">♥</text>
+      <text x="210" y="185" font-size="14" fill="#fdf0f4" opacity="0.6">♥</text>
+
+      <!-- Top tier -->
+      <ellipse cx="200" cy="146" rx="68" ry="10" fill="#a03858"/>
+      <rect x="132" y="98" width="136" height="50" rx="8" fill="#b04868"/>
+      <ellipse cx="200" cy="98" rx="68" ry="10" fill="#d060a0"/>
+      <!-- Frosting drips top -->
+      <path d="M145,98 Q155,110 165,98 Q175,110 185,98 Q195,110 205,98 Q215,110 225,98 Q235,110 245,98 Q255,110 260,98" fill="none" stroke="#fdf0f4" stroke-width="6" stroke-linecap="round"/>
+      <!-- "25" on top tier -->
+      <text x="200" y="128" font-size="22" font-family="Georgia, serif" font-style="italic" fill="#f0d5a0" text-anchor="middle" font-weight="bold">25</text>
+
+      <!-- Candles -->
+      <!-- Candle 1 -->
+      <rect x="140" y="60" width="10" height="40" rx="3" fill="#f0d5a0"/>
+      <rect x="140" y="60" width="10" height="12" rx="2" fill="#c9973a" opacity="0.5"/>
+      <!-- Candle 2 -->
+      <rect x="165" y="52" width="10" height="48" rx="3" fill="#f2b8c6"/>
+      <rect x="165" y="52" width="10" height="12" rx="2" fill="#d4607a" opacity="0.5"/>
+      <!-- Candle 3 (center) -->
+      <rect x="195" y="46" width="10" height="54" rx="3" fill="#f0d5a0"/>
+      <rect x="195" y="46" width="10" height="12" rx="2" fill="#c9973a" opacity="0.5"/>
+      <!-- Candle 4 -->
+      <rect x="225" y="52" width="10" height="48" rx="3" fill="#f2b8c6"/>
+      <rect x="225" y="52" width="10" height="12" rx="2" fill="#d4607a" opacity="0.5"/>
+      <!-- Candle 5 -->
+      <rect x="250" y="60" width="10" height="40" rx="3" fill="#f0d5a0"/>
+      <rect x="250" y="60" width="10" height="12" rx="2" fill="#c9973a" opacity="0.5"/>
+
+      <!-- Flames group -->
+      <g id="flames">
+        <ellipse class="flame" cx="145" cy="55" rx="5" ry="9" fill="#ffd966" opacity="0.95"/>
+        <ellipse class="flame" cx="145" cy="55" rx="3" ry="6" fill="#fff0a0" opacity="0.8"/>
+
+        <ellipse class="flame" cx="170" cy="47" rx="5" ry="9" fill="#ffd966" opacity="0.95"/>
+        <ellipse class="flame" cx="170" cy="47" rx="3" ry="6" fill="#fff0a0" opacity="0.8"/>
+
+        <ellipse class="flame" cx="200" cy="41" rx="6" ry="11" fill="#ffd966" opacity="0.95"/>
+        <ellipse class="flame" cx="200" cy="41" rx="3.5" ry="7" fill="#fff0a0" opacity="0.8"/>
+
+        <ellipse class="flame" cx="230" cy="47" rx="5" ry="9" fill="#ffd966" opacity="0.95"/>
+        <ellipse class="flame" cx="230" cy="47" rx="3" ry="6" fill="#fff0a0" opacity="0.8"/>
+
+        <ellipse class="flame" cx="255" cy="55" rx="5" ry="9" fill="#ffd966" opacity="0.95"/>
+        <ellipse class="flame" cx="255" cy="55" rx="3" ry="6" fill="#fff0a0" opacity="0.8"/>
+      </g>
+
+      <!-- Smoke (hidden, shown after blowing) -->
+      <g id="smoke" style="display:none">
+        <ellipse cx="145" cy="50" rx="3" ry="6" fill="#aaa" opacity="0" style="animation: smoke 1s ease forwards 0s"/>
+        <ellipse cx="170" cy="42" rx="3" ry="6" fill="#aaa" opacity="0" style="animation: smoke 1s ease forwards 0.1s"/>
+        <ellipse cx="200" cy="36" rx="3" ry="6" fill="#aaa" opacity="0" style="animation: smoke 1s ease forwards 0.2s"/>
+        <ellipse cx="230" cy="42" rx="3" ry="6" fill="#aaa" opacity="0" style="animation: smoke 1s ease forwards 0.1s"/>
+        <ellipse cx="255" cy="50" rx="3" ry="6" fill="#aaa" opacity="0" style="animation: smoke 1s ease forwards 0.05s"/>
+      </g>
+    </svg>
+  </div>
+
+  <p class="blow-hint" id="blow-hint">🌬 Click the button below to blow out the candles!</p>
+  <button id="blow-btn">Blow out the candles 🕯️</button>
+  <div id="final-message">Happy Birthday, My Love! 🎉💖</div>
+</section>
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script>
+/* ─── PETALS ─────────────────────────── */
+(function () {
+  const canvas = document.getElementById('petal-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, petals = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLORS = ['#f2b8c6','#d4607a','#f0d5a0','#e8a0b8','#fdf0f4'];
+
+  function newPetal() {
+    return {
+      x: Math.random() * W,
+      y: -20,
+      r: 4 + Math.random() * 6,
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() - 0.5) * 0.04,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: 0.5 + Math.random() * 1,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      opacity: 0.5 + Math.random() * 0.5
+    };
+  }
+
+  for (let i = 0; i < 30; i++) {
+    const p = newPetal();
+    p.y = Math.random() * H;
+    petals.push(p);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (Math.random() < 0.05) petals.push(newPetal());
+    petals = petals.filter(p => p.y < H + 30);
+    petals.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rotV;
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ─── SLIDESHOW ─────────────────────── */
+(function () {
+  const slides = document.querySelectorAll('.slide');
+  const dotsWrap = document.getElementById('dots');
+  let current = 0, timer;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsWrap.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dotsWrap.children[current].classList.add('active');
+    resetTimer();
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo(current + 1), 4000);
+  }
+
+  document.getElementById('prev-btn').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next-btn').addEventListener('click', () => goTo(current + 1));
+  resetTimer();
+})();
+
+/* ─── LETTER DATE & SIG ─────────────── */
+(function () {
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const d = new Date();
+  document.getElementById('letter-date').textContent =
+    `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+
+  // Make signature editable
+  const sig = document.getElementById('letter-sig');
+  sig.setAttribute('contenteditable', 'true');
+})();
+
+/* ─── CAKE / BLOW ───────────────────── */
+(function () {
+  const btn = document.getElementById('blow-btn');
+  const flames = document.getElementById('flames');
+  const smoke = document.getElementById('smoke');
+  const hint = document.getElementById('blow-hint');
+  const finalMsg = document.getElementById('final-message');
+  const fCanvas = document.getElementById('fireworks-canvas');
+  const fCtx = fCanvas.getContext('2d');
+  let blown = false;
+
+  function resizeFCanvas() {
+    const sec = document.getElementById('cake-section');
+    fCanvas.width  = sec.offsetWidth;
+    fCanvas.height = sec.offsetHeight;
+  }
+  resizeFCanvas();
+  window.addEventListener('resize', resizeFCanvas);
+
+  btn.addEventListener('click', blowOut);
+
+  function blowOut() {
+    if (blown) return;
+    blown = true;
+
+    // Animate candles out
+    flames.style.transition = 'opacity 0.6s ease';
+    flames.style.opacity = '0';
+    setTimeout(() => {
+      flames.style.display = 'none';
+      smoke.style.display = 'block';
+    }, 600);
+
+    btn.style.opacity = '0.3';
+    btn.style.pointerEvents = 'none';
+    hint.textContent = '🎉 You did it!';
+
+    // Show final message
+    setTimeout(() => {
+      finalMsg.style.display = 'block';
+      launchFireworks();
+    }, 1000);
+  }
+
+  // ── Fireworks ──
+  let particles = [];
+
+  function launchFireworks() {
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => burst(), i * 300);
+    }
+    requestAnimationFrame(animateFireworks);
+  }
+
+  function burst() {
+    const cx = fCanvas.width  * (0.2 + Math.random() * 0.6);
+    const cy = fCanvas.height * (0.1 + Math.random() * 0.5);
+    const colors = ['#ffd966','#f2b8c6','#d4607a','#f0d5a0','#ffffff','#e8a0b8'];
+    for (let j = 0; j < 60; j++) {
+      const angle = (Math.PI * 2 * j) / 60 + (Math.random() - 0.5) * 0.3;
+      const speed = 2 + Math.random() * 4;
+      particles.push({
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.015 + Math.random() * 0.015,
+        r: 2 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  }
+
+  function animateFireworks() {
+    fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += 0.06;
+      p.vx *= 0.98;
+      p.life -= p.decay;
+      fCtx.save();
+      fCtx.globalAlpha = p.life;
+      fCtx.beginPath();
+      fCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      fCtx.fillStyle = p.color;
+      fCtx.fill();
+      fCtx.restore();
+    });
+    if (particles.length > 0) requestAnimationFrame(animateFireworks);
+  }
+})();
+</script>
+</body>
+</html>
