@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Happy 25th Birthday, my love! 🎂</title>
+  <title>Happy 25th Birthday 🎂</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@600&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -124,7 +124,7 @@
     ══════════════════════════════ */
     #slideshow {
       background: var(--text-dark);
-      padding: 100px 24px;
+      padding: 80px 24px;
     }
 
     .section-label {
@@ -409,9 +409,12 @@
       font-size: 1.1rem;
       letter-spacing: 2px;
       animation: pulse 2s ease-in-out infinite;
+      text-align: center;
+      max-width: 340px;
     }
 
-    #blow-btn {
+    /* Mic permission button */
+    #mic-btn {
       margin-top: 24px;
       background: transparent;
       border: 1px solid var(--rose);
@@ -425,11 +428,43 @@
       transition: all 0.4s ease;
       text-transform: uppercase;
     }
-
-    #blow-btn:hover {
+    #mic-btn:hover {
       background: var(--rose);
       color: white;
       box-shadow: 0 0 30px rgba(212,96,122,0.5);
+    }
+
+    /* Breath meter shown after mic permission granted */
+    #breath-meter-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    #breath-label {
+      font-style: italic;
+      color: var(--blush);
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    #breath-bar-bg {
+      width: 260px;
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(212,96,122,0.3);
+      overflow: hidden;
+    }
+    #breath-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(to right, var(--blush), var(--rose));
+      transition: width 0.1s ease;
+      box-shadow: 0 0 8px rgba(212,96,122,0.6);
     }
 
     /* Blown-out state */
@@ -678,8 +713,14 @@ Every sentence is a gift.
     </svg>
   </div>
 
-  <p class="blow-hint" id="blow-hint">🌬 Click the button below to blow out the candles!</p>
-  <button id="blow-btn">Blow out the candles 🕯️</button>
+  <p class="blow-hint" id="blow-hint">🎤 Allow microphone access, then blow into your mic to put out the candles!</p>
+  <button id="mic-btn">🎤 Enable Microphone</button>
+
+  <div id="breath-meter-wrap">
+    <div id="breath-label">blow intensity</div>
+    <div id="breath-bar-bg"><div id="breath-bar"></div></div>
+  </div>
+
   <div id="final-message">Happy Birthday, My Love! 🎉💖</div>
 </section>
 
@@ -788,16 +829,31 @@ Every sentence is a gift.
   sig.setAttribute('contenteditable', 'true');
 })();
 
-/* ─── CAKE / BLOW ───────────────────── */
+/* ─── CAKE / MIC BLOW ───────────────── */
 (function () {
-  const btn = document.getElementById('blow-btn');
-  const flames = document.getElementById('flames');
-  const smoke = document.getElementById('smoke');
-  const hint = document.getElementById('blow-hint');
-  const finalMsg = document.getElementById('final-message');
-  const fCanvas = document.getElementById('fireworks-canvas');
-  const fCtx = fCanvas.getContext('2d');
+  const micBtn        = document.getElementById('mic-btn');
+  const flames        = document.getElementById('flames');
+  const smoke         = document.getElementById('smoke');
+  const hint          = document.getElementById('blow-hint');
+  const finalMsg      = document.getElementById('final-message');
+  const fCanvas       = document.getElementById('fireworks-canvas');
+  const fCtx          = fCanvas.getContext('2d');
+  const breathWrap    = document.getElementById('breath-meter-wrap');
+  const breathBar     = document.getElementById('breath-bar');
+
+  // Individual flame elements so we can blow them out one by one
+  const flameEls = flames.querySelectorAll('ellipse');
+  // Group flames by candle (2 ellipses per candle = 5 candles)
+  const candleFlames = [];
+  for (let i = 0; i < 10; i += 2) candleFlames.push([flameEls[i], flameEls[i+1]]);
+  let litCount = 5;
   let blown = false;
+  let audioCtx, analyser, dataArray, micStream, animId;
+
+  // ── Blow detection state ──
+  const BLOW_THRESHOLD  = 0.18;  // 0–1 normalised RMS to be considered blowing
+  const SUSTAIN_FRAMES  = 12;    // consecutive frames needed to snuff a candle
+  let sustainCounter    = 0;
 
   function resizeFCanvas() {
     const sec = document.getElementById('cake-section');
@@ -807,54 +863,121 @@ Every sentence is a gift.
   resizeFCanvas();
   window.addEventListener('resize', resizeFCanvas);
 
-  btn.addEventListener('click', blowOut);
+  // ── Request mic ──
+  micBtn.addEventListener('click', async () => {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+      analyser  = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const source = audioCtx.createMediaStreamSource(micStream);
+      source.connect(analyser);
 
-  function blowOut() {
+      micBtn.style.display     = 'none';
+      breathWrap.style.display = 'flex';
+      hint.textContent         = '🌬 Now blow into your microphone to put out the candles!';
+      animId = requestAnimationFrame(detectBlow);
+    } catch (e) {
+      hint.textContent = '⚠️ Microphone access denied. Please allow it in your browser and try again.';
+      console.warn('Mic error:', e);
+    }
+  });
+
+  // ── Audio analysis loop ──
+  function detectBlow() {
     if (blown) return;
-    blown = true;
+    animId = requestAnimationFrame(detectBlow);
 
-    // Animate candles out
-    flames.style.transition = 'opacity 0.6s ease';
-    flames.style.opacity = '0';
-    setTimeout(() => {
-      flames.style.display = 'none';
-      smoke.style.display = 'block';
-    }, 600);
+    analyser.getByteFrequencyData(dataArray);
 
-    btn.style.opacity = '0.3';
-    btn.style.pointerEvents = 'none';
-    hint.textContent = '🎉 You did it!';
+    // RMS of the full frequency spectrum → volume 0–1
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += (dataArray[i] / 255) ** 2;
+    const rms = Math.sqrt(sum / dataArray.length);
 
-    // Show final message
-    setTimeout(() => {
-      finalMsg.style.display = 'block';
-      launchFireworks();
-    }, 1000);
+    // Low-frequency energy ratio: blowing is dominated by low freqs (< ~600 Hz)
+    // With fftSize 256 & typical 44100 Hz sample rate, bin width ≈ 172 Hz
+    // Low bins 0–3 cover roughly 0–600 Hz
+    let lowSum = 0;
+    for (let i = 0; i < 4; i++) lowSum += dataArray[i];
+    const lowRatio = (lowSum / 4) / 255;
+
+    // Blowing = loud enough AND energy concentrated in low frequencies
+    const isBlowing = rms > BLOW_THRESHOLD && lowRatio > 0.25;
+
+    // Update visual breath bar
+    const pct = Math.min(rms / 0.5, 1) * 100;
+    breathBar.style.width = pct + '%';
+    breathBar.style.background = isBlowing
+      ? 'linear-gradient(to right, #ffd966, #f0d5a0)'
+      : 'linear-gradient(to right, #f2b8c6, #d4607a)';
+
+    if (isBlowing) {
+      sustainCounter++;
+      // Make flames flicker faster while blowing
+      flameEls.forEach(f => f.style.animationDuration = '0.1s');
+
+      if (sustainCounter >= SUSTAIN_FRAMES && litCount > 0) {
+        sustainCounter = 0;
+        extinguishOne();
+      }
+    } else {
+      sustainCounter = 0;
+      flameEls.forEach(f => f.style.animationDuration = '0.4s');
+    }
+  }
+
+  function extinguishOne() {
+    litCount--;
+    const [a, b] = candleFlames[litCount]; // snuff outermost first then centre
+    a.style.transition = 'opacity 0.4s';
+    b.style.transition = 'opacity 0.4s';
+    a.style.opacity = '0';
+    b.style.opacity = '0';
+
+    if (litCount === 0) {
+      blown = true;
+      cancelAnimationFrame(animId);
+      // Stop mic
+      if (micStream) micStream.getTracks().forEach(t => t.stop());
+
+      setTimeout(() => {
+        smoke.style.display = 'block';
+        breathWrap.style.display = 'none';
+        hint.textContent = '🎉 You did it! Happy Birthday!';
+        hint.style.animation = 'none';
+        hint.style.opacity   = '1';
+      }, 400);
+
+      setTimeout(() => {
+        finalMsg.style.display = 'block';
+        launchFireworks();
+      }, 1200);
+    }
   }
 
   // ── Fireworks ──
   let particles = [];
 
   function launchFireworks() {
-    for (let i = 0; i < 8; i++) {
-      setTimeout(() => burst(), i * 300);
-    }
+    for (let i = 0; i < 10; i++) setTimeout(() => burst(), i * 280);
     requestAnimationFrame(animateFireworks);
   }
 
   function burst() {
-    const cx = fCanvas.width  * (0.2 + Math.random() * 0.6);
-    const cy = fCanvas.height * (0.1 + Math.random() * 0.5);
-    const colors = ['#ffd966','#f2b8c6','#d4607a','#f0d5a0','#ffffff','#e8a0b8'];
-    for (let j = 0; j < 60; j++) {
-      const angle = (Math.PI * 2 * j) / 60 + (Math.random() - 0.5) * 0.3;
-      const speed = 2 + Math.random() * 4;
+    const cx = fCanvas.width  * (0.15 + Math.random() * 0.7);
+    const cy = fCanvas.height * (0.05 + Math.random() * 0.5);
+    const colors = ['#ffd966','#f2b8c6','#d4607a','#f0d5a0','#ffffff','#e8a0b8','#c9973a'];
+    for (let j = 0; j < 70; j++) {
+      const angle = (Math.PI * 2 * j) / 70 + (Math.random() - 0.5) * 0.3;
+      const speed = 1.5 + Math.random() * 5;
       particles.push({
         x: cx, y: cy,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         life: 1,
-        decay: 0.015 + Math.random() * 0.015,
+        decay: 0.012 + Math.random() * 0.016,
         r: 2 + Math.random() * 3,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
