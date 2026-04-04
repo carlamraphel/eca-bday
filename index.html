@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Happy 25th Birthday 🎂</title>
+  <title>Happy 25th Birthday, My Love! 🎂</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@600&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -124,7 +124,7 @@
     ══════════════════════════════ */
     #slideshow {
       background: var(--text-dark);
-      padding: 80px 24px;
+      padding: 120px 24px;
     }
 
     .section-label {
@@ -915,8 +915,10 @@ Every sentence is a gift.
 
     if (isBlowing) {
       sustainCounter++;
-      // Make flames flicker faster while blowing
-      flameEls.forEach(f => f.style.animationDuration = '0.1s');
+      // Make still-lit flames flicker faster while blowing
+      for (let i = 0; i < litCount; i++) {
+        candleFlames[i].forEach(f => f.style.animationDuration = '0.1s');
+      }
 
       if (sustainCounter >= SUSTAIN_FRAMES && litCount > 0) {
         sustainCounter = 0;
@@ -924,13 +926,18 @@ Every sentence is a gift.
       }
     } else {
       sustainCounter = 0;
-      flameEls.forEach(f => f.style.animationDuration = '0.4s');
+      for (let i = 0; i < litCount; i++) {
+        candleFlames[i].forEach(f => f.style.animationDuration = '0.4s');
+      }
     }
   }
 
   function extinguishOne() {
     litCount--;
-    const [a, b] = candleFlames[litCount]; // snuff outermost first then centre
+    const [a, b] = candleFlames[litCount];
+    // Stop the CSS animation first — otherwise the keyframe keeps overriding opacity
+    a.style.animation = 'none';
+    b.style.animation = 'none';
     a.style.transition = 'opacity 0.4s';
     b.style.transition = 'opacity 0.4s';
     a.style.opacity = '0';
