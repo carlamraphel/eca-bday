@@ -844,9 +844,9 @@ I'm truly excited for the future chapters of us. But for now, blow your cake and
   // ── Blow detection state ──
   // Mobile mics are much more sensitive — raise thresholds based on device type
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-  const BLOW_THRESHOLD  = isMobile ? 0.22 : 0.18;  // louder required on mobile
-  const LOW_RATIO_MIN   = isMobile ? 0.30 : 0.25;  // stricter low-freq check
-  const SUSTAIN_FRAMES  = isMobile ? 15 : 12;       // must sustain longer on mobile
+  const BLOW_THRESHOLD  = isMobile ? 0.24 : 0.18;  // louder required on mobile
+  const LOW_RATIO_MIN   = isMobile ? 0.32 : 0.25;  // stricter low-freq check
+  const SUSTAIN_FRAMES  = isMobile ? 17 : 12;       // must sustain longer on mobile
   let sustainCounter    = 0;
 
   function resizeFCanvas() {
@@ -903,7 +903,7 @@ I'm truly excited for the future chapters of us. But for now, blow your cake and
     const highRatio = (highSum / (dataArray.length - 20)) / 255;
 
     // Blowing = loud enough AND low-freq dominant AND NOT speech (high-freq quiet)
-    const isBlowing = rms > BLOW_THRESHOLD && lowRatio > LOW_RATIO_MIN && highRatio < 0.15;
+    const isBlowing = rms > BLOW_THRESHOLD && lowRatio > LOW_RATIO_MIN && highRatio < 0.20;
 
     // Update visual breath bar
     const pct = Math.min(rms / 0.5, 1) * 100;
