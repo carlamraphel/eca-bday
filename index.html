@@ -549,31 +549,31 @@
     <!-- SLIDE 1 — Replace .slide-placeholder with <img class="slide-photo" src="photo1.jpg" alt="..."> -->
     <div class="slide active">
       <img class="slide-photo" src="images/img2.jpg">
-      <div class="slide-caption">One of our early first dates near Kingswood!☺️</div>
+      <div class="slide-caption">One of our early first dates near Kingswood! ☺️</div>
     </div>
 
     <!-- SLIDE 2 -->
     <div class="slide">
       <img class="slide-photo" src="images/img3.jpg">
-      <div class="slide-caption">First bf/gf date + our first concert together!🤩</div>
+      <div class="slide-caption">First bf/gf date + our first concert together! 🤩</div>
     </div>
 
     <!-- SLIDE 3 -->
     <div class="slide">
       <img class="slide-photo" src="images/img7.jpg">
-      <div class="slide-caption">Bebu's 24th Birthday!🥳</div>
+      <div class="slide-caption">Bebu's 24th Birthday! 🥳</div>
     </div>
 
     <!-- SLIDE 4 -->
     <div class="slide">
       <img class="slide-photo" src="images/img8.jpg">
-      <div class="slide-caption">Our first travel together!✈️</div>
+      <div class="slide-caption">Our first travel together! ✈️</div>
     </div>
 
     <!-- SLIDE 5 -->
     <div class="slide">
       <img class="slide-photo" src="images/img9.jpg">
-      <div class="slide-caption">Our first anniversary!💖</div>
+      <div class="slide-caption">Our first anniversary! 💖</div>
     </div>
   </div>
 
@@ -606,7 +606,7 @@ You mean a lot to me in words that I could not even explain. I may not express i
 
 If I could give you something on this special day of yours, it would be assurance. That I will continue to love you and choose you every single day no matter how life goes for the both of us. I'll continuously work on myself and my career to give you the life that I want not just for myself, but also for the life that I want to build with you in the future. 
 
-I'm truly excited for the future chapters of us. But for now, blow your cake and enjoy your special day. Happy Birthday once again, my love!🥰
+I'm truly excited for the future chapters of us. But for now, blow your cake and enjoy your special day. Happy Birthday once again, my love! 🥰
     </div>
 
     <div class="letter-closing">With all my heart,</div>
@@ -844,9 +844,9 @@ I'm truly excited for the future chapters of us. But for now, blow your cake and
   // ── Blow detection state ──
   // Mobile mics are much more sensitive — raise thresholds based on device type
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-  const BLOW_THRESHOLD  = isMobile ? 0.30 : 0.18;  // louder required on mobile
-  const LOW_RATIO_MIN   = isMobile ? 0.40 : 0.25;  // stricter low-freq check
-  const SUSTAIN_FRAMES  = isMobile ? 22 : 12;       // must sustain longer on mobile
+  const BLOW_THRESHOLD  = isMobile ? 0.22 : 0.18;  // louder required on mobile
+  const LOW_RATIO_MIN   = isMobile ? 0.30 : 0.25;  // stricter low-freq check
+  const SUSTAIN_FRAMES  = isMobile ? 15 : 12;       // must sustain longer on mobile
   let sustainCounter    = 0;
 
   function resizeFCanvas() {
