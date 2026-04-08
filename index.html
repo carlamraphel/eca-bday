@@ -842,11 +842,8 @@ I'm truly excited for the future chapters of us. But for now, blow your cake and
   let audioCtx, analyser, dataArray, micStream, animId;
 
   // ── Blow detection state ──
-  // Mobile mics are much more sensitive — raise thresholds based on device type
-  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-  const BLOW_THRESHOLD  = isMobile ? 0.24 : 0.18;  // louder required on mobile
-  const LOW_RATIO_MIN   = isMobile ? 0.32 : 0.25;  // stricter low-freq check
-  const SUSTAIN_FRAMES  = isMobile ? 17 : 12;       // must sustain longer on mobile
+  const BLOW_THRESHOLD  = 0.18;  // 0–1 normalised RMS to be considered blowing
+  const SUSTAIN_FRAMES  = 12;    // consecutive frames needed to snuff a candle
   let sustainCounter    = 0;
 
   function resizeFCanvas() {
@@ -897,13 +894,8 @@ I'm truly excited for the future chapters of us. But for now, blow your cake and
     for (let i = 0; i < 4; i++) lowSum += dataArray[i];
     const lowRatio = (lowSum / 4) / 255;
 
-    // High-freq check: speech has lots of high-freq energy; blowing does not
-    let highSum = 0;
-    for (let i = 20; i < dataArray.length; i++) highSum += dataArray[i];
-    const highRatio = (highSum / (dataArray.length - 20)) / 255;
-
-    // Blowing = loud enough AND low-freq dominant AND NOT speech (high-freq quiet)
-    const isBlowing = rms > BLOW_THRESHOLD && lowRatio > LOW_RATIO_MIN && highRatio < 0.20;
+    // Blowing = loud enough AND energy concentrated in low frequencies
+    const isBlowing = rms > BLOW_THRESHOLD && lowRatio > 0.25;
 
     // Update visual breath bar
     const pct = Math.min(rms / 0.5, 1) * 100;
